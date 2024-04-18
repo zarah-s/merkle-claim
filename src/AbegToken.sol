@@ -27,8 +27,11 @@ contract Merkle is ERC1155 {
         require(!hasClaimed[_claimer], "already claimed");
         bytes32 leaf = keccak256(abi.encodePacked(_claimer, _amount, _id));
         bool verificationStatus = MerkleProofLib.verify(_proof, root, leaf);
-        require(verificationStatus, "not whitelisted");
+        if (!verificationStatus) {
+            revert("not whitelisted");
+        }
         hasClaimed[_claimer] = true;
+        assert(hasClaimed[_claimer]);
         bytes memory _data;
         _mint(_claimer, _id, _amount, _data);
         success = true;
